@@ -1,0 +1,20 @@
+﻿@inject SignInManager<IdentityUser> SignInManager
+@{
+    var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+}
+<div class="row">
+    <div class="col-lg-9">
+        <a class="btn btn-outline-dark active @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Perfil</a>
+
+        <a class="btn btn-outline-dark active @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Contraseña</a>
+
+        @if (hasExternalLogins)
+        {
+            <a id="external-login" class="btn btn-outline-dark active @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins">External logins</a>
+        }
+        
+        <a class="btn btn-outline-dark active @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Datos Personales</a>
+
+    </div>
+</div>
+

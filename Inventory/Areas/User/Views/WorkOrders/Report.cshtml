@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Reportes";
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+            <h3 class="text-dark">@ViewData["Title"]</h3>
+            <hr />
+            <h5 class="text-dark">Reporte Histórico</h5>
+            <form method="post" asp-action="ReportPost">
+                <div class="alert alert-info">
+                    Se generará un documento excel con datos sobre los productos que están asociados a una orden
+                    de trabajo.
+                </div>
+                <div class="form-group">
+                    <label for="desde">Desde</label>
+                    <input type="date" id="desde" name="desde" class="form-control col-6" />
+                </div>
+                <div class="form-group">
+                    <label for="hasta">Hasta</label>
+                    <input type="date" id="hasta" name="hasta" class="form-control col-6" />
+                </div>
+                <button type="submit" class="btn btn-warning">Descargar Productos Entregados <i class="far fa-file-excel"></i></button>
+            </form>
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth() + 1;
+    var yyyy = today.getFullYear();
+    if (dd < 10) {
+        dd = '0' + dd
+    }
+    if (mm < 10) {
+        mm = '0' + mm
+    }
+
+    today = yyyy + '-' + mm + '-' + dd;
+    document.getElementById("desde").setAttribute("max", today);
+    document.getElementById("hasta").setAttribute("max", today);
+
+
+</script>
+@if (ViewData["invalidModel"] != null)
+{
+    <script>
+            Swal.fire("B2B Innova", '@ViewData["invalidModel"]', 'error');
+    </script>
+}

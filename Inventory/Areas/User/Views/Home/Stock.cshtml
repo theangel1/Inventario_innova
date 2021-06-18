@@ -1,0 +1,60 @@
+﻿@model Inventory.Models.ViewModel.MovementViewModel
+
+@{
+    ViewData["Title"] = "Mi Stock";
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-6">
+            <h3 class="text-dark"><span class="oi oi-transfer"></span> @ViewData["Title"]</h3>
+        </div>
+    </div>
+    <hr class="bg-warning" />
+    <br />
+    <div class="table-responsive">
+        <table class="table table-sm" id="tablaMov">
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>Nombre Producto</th>
+                    <th>Categoría</th>
+                    <th>Saldo</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+
+            $("#tablaMov").DataTable({
+                pageLength: 10,
+                destroy: true,
+                dom: 'Bfrtip',
+                processing: true,
+                buttons: [
+                    'csv', 'excel', 'pdf'
+                ],
+                ajax: {
+                    url: "/User/Home/GetStock",
+                    type: "GET",
+                    datatype: "json",
+
+                },
+                "columns": [
+                    { "data": "producto.sku" },
+                    { "data": "producto.nombre" },                    
+                    { "data": "saldo" },
+
+                ]
+            });
+        });
+    </script>
+}

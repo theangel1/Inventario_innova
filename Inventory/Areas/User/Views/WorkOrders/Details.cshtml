@@ -1,0 +1,178 @@
+﻿@model Inventory.Models.ViewModel.WorkOrderViewModel
+
+@{
+    ViewData["Title"] = "Detalles de Orden de Trabajo";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6 col-md-12 col-lg-12">
+            <h3 class="text-dark">@ViewData["Title"]</h3>
+            <hr />
+
+            <dl class="row">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.WorkOrder.FechaCreacion)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.WorkOrder.FechaCreacion)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.WorkOrder.FechaTermino)
+                </dt>
+                <dd class="col-sm-10">
+                    @Model.WorkOrder.FechaTermino.ToString("dd/MM/yyyy")
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.WorkOrder.Jornada)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.WorkOrder.Jornada)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.WorkOrder.EstadoOT)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.WorkOrder.EstadoOT)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.WorkOrder.User)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.WorkOrder.User.Nombre)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.WorkOrder.NumeroFacturaExterno)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.WorkOrder.NumeroFacturaExterno)
+                </dd>
+
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.WorkOrder.NombreRetail)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.WorkOrder.NombreRetail)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.WorkOrder.NumeroFacturaRetail)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.WorkOrder.NumeroFacturaRetail)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.WorkOrder.OrdenCompra)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.WorkOrder.OrdenCompra)
+                </dd>
+
+                @if (!string.IsNullOrEmpty(Model.WorkOrder.Comentario))
+                {
+                    <dt class="col-sm-2">
+                        @Html.DisplayNameFor(model => model.WorkOrder.Comentario)
+                    </dt>
+                    <dd class="col-sm-10">
+                        @Html.DisplayFor(model => model.WorkOrder.Comentario)
+                    </dd>
+                }
+
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.WorkOrder.Cita.NumeroCita)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.WorkOrder.Cita.NumeroCita)
+                </dd>
+
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.WorkOrder.Cita.Patente)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.WorkOrder.Cita.Patente)
+                </dd>
+            </dl>
+
+            <hr class="bg-warning" />
+            <strong>Detalle de productos</strong>
+
+            <form asp-action="Details">
+                <input type="hidden" asp-for="WorkOrder.Id" />
+                <input type="hidden" asp-for="WorkOrder.EmpresaId" />
+                <div class="table-responsive-sm">
+                    <table class="table table-sm col-md-12 col-lg-12">
+                        <thead>
+                            <tr>
+                                <th width="11%">SKU</th>
+                                <th width="30%">Producto</th>
+                                <th width="20%">LPN</th>
+                                <th width="11%">Cantidad</th>
+                                @if (Model.WorkOrder.EstadoOT == EstadoOT.Despachado)
+                                {
+                                    <th>Motivo Devolución</th>
+                                }
+                                else
+                                {
+                                    <th width="11%">Cantidad a solicitar</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.DetalleOT.Count; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <input asp-for="DetalleOT[i].Producto.SKU" class="form-control" readonly />
+                                        <input asp-for="DetalleOT[i].ProductoId" class="form-control" type="hidden" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="DetalleOT[i].Producto.Nombre" class="form-control" readonly />
+                                    </td>
+                                    <td>
+                                        <input asp-for="DetalleOT[i].Lpn" class="form-control" readonly />
+                                    </td>
+                                    <td>
+                                        <input asp-for="DetalleOT[i].Cantidad" class="form-control" readonly />
+                                    </td>
+                                    <td>
+                                        @if(Model.DetalleOT[i].MotivoDevolucion != null || string.IsNullOrEmpty(Model.DetalleOT[i].MotivoDevolucion) && Model.WorkOrder.EstadoOT == EstadoOT.Despachado)
+                                        {
+                                            <input asp-for="DetalleOT[i].MotivoDevolucion" readonly class="form-control"/>
+                                        }
+                                        else
+                                        { 
+                                        <input asp-for="DetalleOT[i].CantidadNueva" class="form-control" />
+                                        <input type="hidden" asp-for="DetalleOT[i].WorkOrderId" />
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <input type="hidden" asp-for="WorkOrder.Id" />
+
+                <div class="form-group text-center">
+                    @if (Model.WorkOrder.EstadoOT == EstadoOT.Entregado || Model.WorkOrder.EstadoOT == EstadoOT.Despachado)
+                    {
+                        <a asp-action="Despachos" class="btn btn-secondary col-sm-6 col-md-5 col-lg-2">Volver a la lista</a>
+                    }
+                    else
+                    {
+                        <input type="submit" value="Actualizar" class="btn btn-warning col-sm-6 col-md-5 col-lg-2" />
+                        <a asp-action="Index" class="btn btn-secondary col-sm-6 col-md-5 col-lg-2">Volver a la lista</a>
+                    }
+
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <script type="text/javascript">
+          Swal.fire("¡Información!", '@ViewBag.Message', "info");
+    </script>
+}

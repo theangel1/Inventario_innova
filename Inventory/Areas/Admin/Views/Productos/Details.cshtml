@@ -1,0 +1,63 @@
+﻿@model Inventory.Models.Producto
+
+@{
+    ViewData["Title"] = "Detalles";
+}
+    <div class="container-fluid">
+        <h3 class="text-dark">@ViewData["Title"]</h3>
+        <hr class="bg-warning" />
+        <dl class="row">
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Nombre)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Nombre)
+            </dd>
+
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.SKU)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.SKU)
+            </dd>
+
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.PrecioVenta)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.PrecioVenta)
+            </dd>
+
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.ImagenUrl)
+            </dt>
+            <dd class="col-sm-10">
+                <img src="@Model.ImagenUrl" width="50%" style="border-radius:5px; border:1px solid #bbb9b9;" />
+            </dd>
+
+
+        </dl>
+
+        
+
+        <div class="form-group text-center">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-dark col-sm-12 col-md-5 col-lg-2">Editar</a>
+            @switch (Model.TipoProducto)
+            {
+                case TipoProducto.Corte:
+                    <a asp-action="Index" asp-route-Type="Cortes" class="btn btn-warning col-sm-6 col-md-5 col-lg-3">Volver</a>
+                    break;
+                case TipoProducto.Producto:
+                    <a asp-action="Index" asp-route-Type="Muebles" class="btn btn-warning col-sm-6 col-md-5 col-lg-3">Volver</a>
+                    break;
+                case TipoProducto.ProductoTerminado:
+                    <a asp-action="Index" asp-route-Type="Terminados" class="btn btn-warning col-sm-6 col-md-5 col-lg-3">Volver</a>
+                    break;
+                default:
+                    <a asp-action="Index" asp-route-Type="all" class="btn btn-warning col-sm-6 col-md-5 col-lg-3">Volver</a>
+                    break;
+            }
+
+        </div>
+
+    </div>

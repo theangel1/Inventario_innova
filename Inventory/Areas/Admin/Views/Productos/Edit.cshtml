@@ -1,0 +1,93 @@
+﻿@model Inventory.Models.ViewModel.ProductViewModel
+
+@{
+    ViewData["Title"] = "Editar";
+}
+
+<div class="container-fluid">
+    <h3 class="text-dark">@ViewData["Title"]</h3>
+
+    <hr class="bg-warning" />
+
+    <form method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Producto.Id" />
+        <div class="row">
+            <div class="form-group col-sm-6 col-md-12 col-lg-6 ">
+                <label asp-for="Producto.Nombre" class="control-label"></label>
+                <input asp-for="Producto.Nombre" class="form-control" />
+                <span asp-validation-for="Producto.Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group col-sm-6 col-md-12 col-lg-4">
+                <label asp-for="Producto.SKU" class="control-label"></label>
+                <input asp-for="Producto.SKU" class="form-control" />
+                <span asp-validation-for="Producto.SKU" class="text-danger"></span>
+            </div>
+
+
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6 col-md-12 col-lg-6">
+                <label asp-for="Producto.PrecioCompra" class="control-label"></label>
+                <input asp-for="Producto.PrecioCompra" class="form-control" />
+                <span asp-validation-for="Producto.PrecioCompra" class="text-danger"></span>
+            </div>
+            <div class="form-group col-sm-6 col-md-12 col-lg-6">
+                <label asp-for="Producto.PrecioVenta" class="control-label"></label>
+                <input asp-for="Producto.PrecioVenta" class="form-control" />
+                <span asp-validation-for="Producto.PrecioVenta" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6 col-md-12 col-lg-6">
+                <label asp-for="Producto.StockMinimo" class="control-label"></label>
+                <input asp-for="Producto.StockMinimo" class="form-control" />
+                <span asp-validation-for="Producto.StockMinimo" class="text-danger"></span>
+            </div>
+            <div class="form-group col-sm-6 col-md-12 col-lg-6">
+                <label asp-for="Producto.StockMaximo" class="control-label"></label>
+                <input asp-for="Producto.StockMaximo" class="form-control" />
+                <span asp-validation-for="Producto.StockMaximo" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-sm-6 col-md-12 col-lg-6">
+                <label asp-for="Producto.ImagenUrl" class="control-label"></label>
+                <input type="file" name="files" class="form-control" />
+            </div>
+        </div>
+        <div class="col-1">
+
+        </div>
+        <div class="col-3">
+            <img src="@Model.Producto.ImagenUrl" width="100%" style="border-radius:5px; border:1px solid #bbb9b9;" />
+        </div>
+
+        <br />
+        <div class="form-group text-center">
+            <input type="submit" value="Guardar" class="btn btn-dark col-sm-6 col-md-5 col-lg-3" />
+
+            @switch (Model.Producto.TipoProducto)
+            {
+                case TipoProducto.Corte:
+                    <a asp-action="Index" asp-route-Type="Cortes" class="btn btn-warning col-sm-6 col-md-5 col-lg-3">Volver</a>
+                    break;
+                case TipoProducto.Producto:
+                    <a asp-action="Index" asp-route-Type="Muebles" class="btn btn-warning col-sm-6 col-md-5 col-lg-3">Volver</a>
+                    break;
+                case TipoProducto.ProductoTerminado:
+                    <a asp-action="Index" asp-route-Type="Terminados" class="btn btn-warning col-sm-6 col-md-5 col-lg-3">Volver</a>
+                    break;
+                default:
+                     <a asp-action="Index" asp-route-Type="all" class="btn btn-warning col-sm-6 col-md-5 col-lg-3">Volver</a>
+                    break;
+            }
+
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

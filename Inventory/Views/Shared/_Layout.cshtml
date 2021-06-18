@@ -1,0 +1,244 @@
+﻿@using Inventory.Utility
+<!DOCTYPE html>
+<html lang="es-cl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sisgen Chile">
+    <meta name="author" content="Angel Pinilla Ibarra">
+    <meta name="keyword" content="Factura Electronica, SII">
+    <link rel="shortcut icon" href="~/logo_innovamobelsad_32x32.png" type="image/x-icon" />
+
+    <title>@ViewData["Title"] - B2B Innova</title>
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    </environment>
+
+    <!--Datatables-->
+    <link rel="stylesheet" href="~/lib/DataTables-1.10.18/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="~/lib/Buttons-1.5.4/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/searchpanes/1.2.2/css/searchPanes.dataTables.min.css" />
+
+
+    <link rel="stylesheet" href="~/css/select.dataTables.min.css" />
+    <!--Sweet alert 2-->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <link rel="stylesheet" href="~/lib/fontawesome-free-5.11.2-web/css/all.css" />
+
+</head>
+<body onload="SetEmpresa()">
+    <app>
+        <div class="sidebar">
+            <nav class="navbar top-row pl-4 navbar-dark ">
+                <div class="container ">
+                    <a class="navbar-brand" asp-area="User" asp-controller="Home" asp-action="Index">
+                        <img src="~/logo_innovamobelsad_32x32.png" />
+                        B2B Innova
+                    </a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+            </nav>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item px-3 dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="oi oi-wrench"></span>Ordenes de Trabajo
+                            </a>
+                            <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+                                <a class="nav-link" asp-area="User" asp-controller="WorkOrders" asp-action="Index">
+                                    <span class="oi oi-project"></span>OT actuales
+                                </a>
+                                <a class="nav-link" asp-area="User" asp-controller="Scanner" asp-action="Index">
+                                    <i class="fas fa-barcode" style="font-size:25px; width: 2rem;"></i> Lpn Scanner
+                                </a>
+
+                                <a class="nav-link" asp-area="User" asp-controller="WorkOrders" asp-action="Despachos">
+                                    <span class="oi oi-location"></span>Despachos
+                                </a>
+                                <a class="nav-link" asp-area="User" asp-controller="Home" asp-action="Produccion">
+                                    <span class="oi oi-monitor"></span>Vista Producción
+                                </a>
+                            </div>
+                        </li>
+
+                        <li class="nav-item px-3 dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownp" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="oi oi-cloud-upload"></span>Carga de Datos
+                            </a>
+                            <div class="dropdown-menu bg-dark " aria-labelledby="navbarDropdownp">
+
+                                <a class="nav-link" asp-area="User" asp-controller="BulkLoad" asp-action="CargaA">
+                                    <span class="oi oi-aperture"></span>Tramo 1: Creación OT
+                                </a>
+
+                                <a class="nav-link" asp-area="User" asp-controller="BulkLoad" asp-action="CargaMasivaOT">
+                                    <span class="oi oi-aperture"></span>Tramo 2: Asignación OT
+                                </a>
+
+                                <a class="nav-link" asp-area="User" asp-controller="BulkLoad" asp-action="CargaMasivaCortes">
+                                    <span class="oi oi-layers"></span>Tramo 3: Carga de facturas
+                                </a>
+                                <a class="nav-link" asp-area="User" asp-controller="BulkLoad" asp-action="CargaMasivaLPN">
+                                    <span class="oi oi-aperture"></span>Tramo 4: Carga LPN
+                                </a>
+                                <a class="nav-link" asp-area="User" asp-controller="BulkLoad" asp-action="CargaMasivaStock">
+                                    <span class="oi oi-layers"></span>Carga Masiva de Stock
+                                </a>
+
+                            </div>
+                        </li>
+
+                        <li class="nav-item px-3 dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownp" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="oi oi-camera-slr"></span>Maestra de Productos
+                            </a>
+                            <div class="dropdown-menu bg-dark " aria-labelledby="navbarDropdownp">
+                                <a class="nav-link" asp-area="Admin" asp-controller="Productos" asp-action="Index" asp-route-Type="Cortes">
+                                    <span class="oi oi-project"></span>Cortes
+                                </a>
+                                <a class="nav-link" asp-area="Admin" asp-controller="Productos" asp-action="Index" asp-route-Type="Muebles">
+                                    <span class="oi oi-project"></span>Muebles
+                                </a>
+                                <a class="nav-link" asp-area="Admin" asp-controller="Productos" asp-action="Index" asp-route-Type="Terminados">
+                                    <span class="oi oi-project"></span>Terminados
+                                </a>
+                                <a class="nav-link" asp-area="Admin" asp-controller="Productos" asp-action="Index" asp-route-Type="all">
+                                    <span class="oi oi-project"></span>Mostrar Todos
+                                </a>
+
+                            </div>
+                        </li>
+
+                        @if (User.IsInRole(SD.Control) || User.IsInRole(SD.Admin))
+                        {
+                            <li class="nav-item px-3 dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownp" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="oi oi-browser"></span>Gestión App
+                                </a>
+                                <div class="dropdown-menu bg-dark " aria-labelledby="navbarDropdownp">
+                                    <a class="nav-link" asp-area="Admin" asp-controller="Empresas" asp-action="Index">
+                                        <span class="oi oi-people"></span> Empresas
+                                    </a>
+                                    <a class="nav-link" asp-area="Admin" asp-controller="Usuarios" asp-action="Index"><span class="oi oi-person"></span>Usuarios</a>
+
+
+                                </div>
+                            </li>
+
+                            <li class="nav-item px-3 dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="oi oi-fullscreen-enter"></span>Movimientos
+                                </a>
+                                <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+                                    <a class="nav-link" asp-area="User" asp-controller="Movimientos" asp-action="Index"><span class="oi oi-fullscreen-enter"></span>Movimientos Locales</a>
+                                    <a class="nav-link" asp-area="User" asp-controller="Movimientos" asp-action="IndexCompany">
+                                        <span class="oi oi-transfer"></span>Todos los Movimientos
+                                    </a>
+
+                                </div>
+                            </li>
+
+                            <li class="nav-item px-3 dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="far fa-file-excel" style="font-size:25px; width: 2rem;"></span>Reportes
+                                </a>
+                                <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+                                    <a class="nav-link" asp-area="User" asp-controller="WorkOrders" asp-action="Report"><span class="oi oi-tags"></span>Mis Reportes</a>
+                                </div>
+                            </li>
+                        }
+                        <li class="nav-item px-3 dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownp" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="oi oi-spreadsheet"></span>Stock Productos
+                            </a>
+                            <div class="dropdown-menu bg-dark " aria-labelledby="navbarDropdownp">
+                                <a class="nav-link" asp-area="User" asp-controller="Home" asp-action="Stock">
+                                    <span class="oi oi-people"></span> Mi Stock
+                                </a>
+                                <a class="nav-link" asp-area="User" asp-controller="Home" asp-action="StockGeneral">
+                                    <span class="oi oi-people"></span> Ver stock empresas
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            }
+        </div>
+        <main class="main">
+            <div class="top-row px-4 bg-white fixed-top">
+                <div class="active" style="position:absolute;left:1px">
+
+
+                    <small class="text-primary">Taller actual: <span id="empresa" class="text-blue"></span></small>
+
+
+                </div>
+
+                <partial name="_LoginPartial" />
+            </div>
+            <div class="content">
+                @RenderBody()
+            </div>
+
+        </main>
+    </app>
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    </environment>
+
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js" asp-append-version="true"></script>
+
+    <script type="text/javascript" src="https://cdn.datatables.net/searchpanes/1.2.2/js/dataTables.searchPanes.min.js"></script>
+    
+    
+
+    <script src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js" asp-append-version="true"></script>
+    <script src="~/lib/Buttons-1.5.4/js/buttons.html5.min.js" asp-append-version="true"></script>
+    <script src="~/lib/Buttons-1.5.4/js/buttons.print.min.js" asp-append-version="true"></script>
+    <script src="~/lib/Buttons-1.5.4/js/buttons.colVis.min.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js" asp-append-version="true"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script src="~/js/dataTables.select.min.js"></script>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script>
+            function SetEmpresa() {
+                $.ajax({
+                    type: "GET",
+                    dataType: "text",
+                    url: '/User/Home/GetEmpresa',
+                    success: function (response) {
+                        document.getElementById('empresa').innerHTML = response;
+                    }
+                })
+            }
+        </script>
+    }
+
+
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

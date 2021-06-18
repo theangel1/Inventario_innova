@@ -1,0 +1,241 @@
+﻿@model Inventory.Models.ViewModel.WorkOrderViewModel
+
+@{
+    ViewData["Title"] = "Crear Orden de Trabajo";
+}
+<div class="container-fluid">
+    <h3 class="text-dark">@ViewData["Title"]</h3>
+    <hr class="bg-warning"/>
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            <div class="form-group col-lg-4 col-sm-6 col-md-12">
+                <label asp-for="WorkOrder.Empresa"></label>
+                <select asp-for="WorkOrder.EmpresaId" asp-items="(SelectList)@ViewData["EmpresaId"]" class="form-control">
+                    <option value="">Seleccionar una Empresa</option>
+                </select>
+                <span asp-validation-for="WorkOrder.EmpresaId" class="text-danger"></span>
+            </div>
+            <div class="form-group col-lg-4 col-sm-6 col-md-12">
+                <label asp-for="WorkOrder.FechaTermino"></label>
+                <input asp-for="WorkOrder.FechaTermino" class="form-control" type="date" />
+                <span asp-validation-for="WorkOrder.FechaTermino" class="text-danger"></span>
+            </div>
+            <div class="form-group col-lg-4 col-sm-6 col-md-12">
+                <label asp-for="WorkOrder.Jornada"></label>
+                <select asp-for="WorkOrder.Jornada" class="form-control" asp-items="Html.GetEnumSelectList<Jornada>()"></select>
+                <span asp-validation-for="WorkOrder.Jornada" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-lg-4 col-sm-12 col-md-12">
+                <label asp-for="WorkOrder.OrdenCompra">Orden de Compra</label>
+                <input asp-for="WorkOrder.OrdenCompra" class="form-control" type="text" />
+                <span asp-validation-for="WorkOrder.OrdenCompra" class="text-danger"></span>
+            </div>
+            <div class="form-group col-lg-4 col-sm-6 col-md-12">
+                <label asp-for="WorkOrder.NombreRetail"></label>
+                <input asp-for="WorkOrder.NombreRetail" class="form-control" />
+                <span asp-validation-for="WorkOrder.NombreRetail" class="text-danger"></span>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-lg-6">
+                <h5 class="text-dark">Detalle Orden de Trabajo</h5>
+            </div>
+            <div class="col-lg-6 text-right">
+                <button type="button" data-toggle="modal" data-target="#modalProductos" class="btn btn-warning col-lg-6 col-sm-12" onclick="GetProductos();">
+                    <span class="oi oi-magnifying-glass"></span>Buscar Productos
+                </button>
+            </div>
+        </div>
+        <br />
+        <table class="table table-responsive-sm" id="tablaDetalle">
+            <thead>
+                <tr>
+                    <th width="11%">Id</th>
+                    <th width="12%">SKU</th>
+                    <th>Descripción</th>                    
+                    <th width="11%">Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <input asp-for="DetalleOT[0].ProductoId" class="form-control" readonly />
+                    </td>
+                    <td>
+                        <input asp-for="DetalleOT[0].Producto.SKU" class="form-control" readonly />
+                    </td>
+                    <td>
+                        <input asp-for="DetalleOT[0].Producto.Nombre" class="form-control" readonly />
+                    </td>                    
+                    <td>
+                        <input asp-for="DetalleOT[0].Cantidad" class="form-control" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="text-center">
+            <button type="button" class="btn btn-dark col-lg-1 col-sm-1 col-md-2" onclick="AddLinea()"><span class="oi oi-plus"></span></button>
+            <button type="button" class="btn btn-warning col-lg-1 col-sm-1 col-md-2" onclick="eliminarLineaDet(this);"><span class="oi oi-x"></span></button>
+        </div>
+        <hr />
+        <div class="text-center">
+            <input type="submit" value="Crear" class="btn btn-dark col-lg-2 col-sm-1 col-md-5" onclick="return Validate();" />
+            <a class="btn btn-warning col-lg-2 col-sm-1 col-md-5" asp-action="Index">Volver</a>
+        </div>
+    </form>
+
+</div>
+
+
+<!-- Modal BUSQUEDA DE Productos-->
+<div class="modal fade" id="modalProductos" tabindex="-1" role="dialog" aria-labelledby="modalProductos" aria-hidden="true">
+    <div class="modal-dialog modal-wide">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="modalProductos">Buscar Productos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="display table table-responsive-sm" id="tablaProductos">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>SKU</th>
+                                <th>Nombre</th>                                
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" class="btn btn-dark" value="Seleccionar" onclick="recursividadEnDetalle()" />
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FIN Modal  Productos-->
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        var contadorLineaDetalle = 1;
+
+        function GetProductos() {
+            $("#tablaProductos").DataTable({
+                select: true,
+                responsive: true,
+                pageLength: 5,
+                destroy: true,
+                dom: 'Bfrtip',
+                processing: true,
+                buttons: [],
+                ajax: {
+                    url: "/User/WorkOrders/GetInsumos",
+                    type: "GET",
+                    datatype: "json"
+                },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "sku" },
+                    { "data": "nombre" },                    
+                ]
+            });
+        }
+
+        //Agregar linea de detalle
+        function AddLinea() {
+
+            var actualRowLine = $('#tablaDetalle tr').length - 2;
+
+            //validador de campo descripcion. Si viene vacio, se envia mensaje de error.
+            if (!$.trim($('input[name="DetalleOT[' + actualRowLine + '].ProductoId"]').val()) == '') {
+
+                var tabla = document.getElementById("tablaDetalle");
+                var row1 = tabla.insertRow(tabla.rows.length);
+                var cell1 = row1.insertCell(0);
+                var cell2 = row1.insertCell(1);
+                var cell3 = row1.insertCell(2);
+                var cell4 = row1.insertCell(3);                
+
+                cell1.innerHTML = "<input asp-for='DetalleOT[" + contadorLineaDetalle + "].ProductoId' class='form-control' name='DetalleOT[" + contadorLineaDetalle + "].ProductoId' readonly/> ";
+                cell2.innerHTML = "<input asp-for='DetalleOT[" + contadorLineaDetalle + "].Producto.SKU' class='form-control' name='DetalleOT[" + contadorLineaDetalle + "].Producto.SKU' readonly/> ";
+                cell3.innerHTML = "<input asp-for='DetalleOT[" + contadorLineaDetalle + "].Producto.Nombre' class='form-control' name='DetalleOT[" + contadorLineaDetalle + "].Producto.Nombre' readonly/> ";                
+                cell4.innerHTML = "<input asp-for='DetalleOT[" + contadorLineaDetalle + "].Cantidad' class='form-control' name='DetalleOT[" + contadorLineaDetalle + "].Cantidad' type='number'/> ";
+
+                contadorLineaDetalle++;
+            }
+            else {
+                Swal.fire("Información", "Completar campo Descripción para agregar mas detalles.", "info");
+            }
+        }
+
+        //eLIMINar linea del detalle
+        function eliminarLineaDet(boton) {
+            var tabla = document.getElementById("tablaDetalle");
+            var filas = tabla.rows.length;
+            if (filas > 2) {
+                var indice = boton.parentNode.parentNode.rowIndex;
+                tabla.deleteRow(-1);
+                contadorLineaDetalle--;
+            }
+            else
+                Swal.fire("¡Error!", "No se puede eliminar más filas", "error");
+
+        }
+
+        function recursividadEnDetalle() {
+
+            //Porque -2? porque hay un tr en la parte de thead y porque quiero obtener el valor actual del arreglo
+            var actualRow = $('#tablaDetalle tr').length - 2;
+
+            if ($.trim($('input[name="DetalleOT[' + actualRow + '].ProductoId"]').val()) === '') {
+
+                var id = $("#tablaProductos .selected td:eq(0)").text();
+                console.log("tu id: " + id);
+                var sku = $("#tablaProductos .selected td:eq(1)").text();
+                var descripcion = $("#tablaProductos .selected td:eq(2)").text();               
+
+                //poblar inputs
+                $('input[name="DetalleOT[' + actualRow + '].ProductoId"]').val(id);
+                $('input[name="DetalleOT[' + actualRow + '].Producto.SKU"]').val(sku);
+                $('input[name="DetalleOT[' + actualRow + '].Producto.Nombre"]').val(descripcion);                
+
+                $('#modalProductos').modal('hide');
+
+                Swal.fire("Exito", "Insummo agregado", "success");
+            }
+            else {
+                AddLinea();
+                recursividadEnDetalle();
+            }
+
+        }
+
+        function Validate() {            
+            if ($('input[name="DetalleOT[' + (contadorLineaDetalle - 1) + '].Cantidad"]').val() == "") {
+                Swal.fire("Información de validación", "La cantidad en la linea de detalle no puede ir vacía", "error");
+                return false;
+            }
+            
+        }
+
+    </script>
+
+    @if (ViewData["invalidModel"] != null)
+    {
+        <script>
+            Swal.fire("Información", '@ViewData["invalidModel"]', 'error');
+        </script>
+    }
+}

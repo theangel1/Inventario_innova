@@ -1,0 +1,123 @@
+﻿@model IEnumerable<Inventory.Models.WorkOrder>
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@{
+    ViewData["Title"] = "Home";
+}
+<div class="col-md-11 col-lg-12">
+
+    <div class="text-center">
+        <h1 class="display-4">¡Bienvenido!</h1>
+    </div>
+
+    <div class="container" id="divAngels">
+        <strong>Ordenes de trabajo actuales</strong>
+        @if (SignInManager.IsSignedIn(User))
+        {
+            <div class="table-responsive">
+                <br />
+                <table id="tablaTick" class="display compact" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th style="color:red">Tiempo transcurrido</th>
+                            <th>Fecha Creación</th>
+                            <th>Fecha Termino</th>
+                            <th>Jornada</th>
+                            <th>Estado</th>
+
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+
+        $(document).ready(function () {
+
+            var table = $("#tablaTick").DataTable({
+                "order": [[1, "desc"]],
+                responsive: true,
+                pageLength: 15,
+                destroy: true,
+                dom: 'Bfrtip',
+                processing: true,
+                filter: false,
+                buttons: [
+
+                ],
+                ajax: {
+                    url: "/User/Home/LoadWorkOrders",
+                    type: "GET",
+                    datatype: "json",
+
+                },
+                "columns": [
+                    {
+                        "data": "id",
+                    },
+                    {
+                        "data": "fechaCreacion",
+                        render: function (d) {
+                            return moment(d).startOf('hour').fromNow();
+                        }
+                    },
+                    {
+                        "data": "fechaCreacion",
+                        render: function (d) {
+                            return moment(d).format("YYYY-MM-DD H:mm:ss");
+                        }
+                    },
+                    {
+                        "data": "fechaTermino",
+                        render: function (d) {
+                            return moment(d).format("YYYY-MM-DD");
+                        }
+                    },
+                    { "data": "jornada" },
+                    {
+                        "mRender": function (data, type, row) {
+                            switch (row.estadoOT) {
+                                case 'Creado': return '<label style="color:#4293D2">Creado</label>';
+                                    break;
+                                case 'Asignado': return "<label style='color:#259134'>Asignado <i class='fas fa-user-plus'></i></label>";
+                                    break;
+                                case 'Solicitado': return "<label style='color:#e38b39'>Solicitado</label>";
+                                    break;
+                                case 'Entregado': return 'Entregado';
+                                    break;
+                                case 'Pendiente': return 'Pendiente';
+                                    break;
+                                case 'Facturado': return 'Facturado';
+                                    break;
+                                case 'Reasignado': return 'Reasignado';
+                                    break;
+                                case 'Despachar': return 'En despacho';
+                                    break;
+
+                            }
+                        }
+                    },
+
+                ]
+            });
+
+            setInterval(function () {
+                $("#divAngels").fadeOut('slow');
+                table.ajax.reload();
+                $("#divAngels").fadeIn('slow');
+            }, 10000);
+        });
+
+
+
+    </script>
+}

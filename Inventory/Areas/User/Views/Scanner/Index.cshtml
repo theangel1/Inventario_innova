@@ -1,0 +1,127 @@
+﻿@model IEnumerable<Inventory.Models.WorkOrder>
+
+@{
+    ViewData["Title"] = "Scanner de LPN";
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            <h3 class="text-dark"><i class="fas fa-barcode"></i> @ViewData["Title"]</h3>
+        </div>
+    </div>
+
+    <p>
+        Estimado usuario, si su código de barras no es simétrico, use la opción "ean".
+        Ej.: <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#exampleModal">
+            Ver Ejemplo
+        </button>
+    </p>
+
+    <hr class="bg-warning" />
+
+    <div class="form-group">
+
+        <section id="container" class="container">
+            <div class="controls">
+                <fieldset class="input-group">                 
+
+                    <button class="stop btn btn-danger">Stop</button>
+                </fieldset>
+                <fieldset class="reader-config-group">
+                    <label>
+                        <span>Barcode-Type</span>
+                        <select name="decoder_readers">
+                            <option value="code_128" selected="selected">Code 128</option>
+                            <option value="ean">EAN</option>
+                        </select>
+                    </label>
+                </fieldset>
+            </div>
+            <input class="form-control" readonly id="isbn_input"/>
+            <button onclick="EnviarAjax();" class="btn btn-dark">Validar</button>
+
+            <div id="result_strip">
+                <ul class="thumbnails"></ul>
+                <ul class="collector"></ul>
+            </div>
+            <div id="interactive" class="viewport"></div>
+        </section>
+
+    </div>
+
+
+
+    <!-- Modal -->
+    <div class="modal fade bd-example-modal-sm" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Código de barras Asimétrico</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img src="~/img/20200107_105646.jpg" width="50%" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+    <script src="//webrtc.github.io/adapter/adapter-latest.js" type="text/javascript"></script>
+    <script src="~/lib/Quagga/quagga.min.js"></script>
+    <script src="~/lib/Quagga/live_w_locator.js" type="text/javascript"></script>
+
+
+    <script>
+            function EnviarAjax() {
+
+                var lpn = $("#isbn_input").val();
+
+
+                $.ajax({
+                    url: '@Url.Action("ValidateLPN", "Scanner")',
+                    dataType: "json",
+                    type: "GET",
+                    data: { "lpn": lpn },
+                    success: function (response) {                      
+
+                        if (response !== "") {
+                            
+                            var result = Number(response);                            
+                            if (result)
+                                window.location.href = "WorkOrders/Recepcion/" + result;                            
+                            else
+                                Swal.fire("Innova App", response, "info");
+                        }                      
+
+                        else
+                            Swal.fire("Innova App", "Ocurrió algún tipo de error... comunicarse con el departamento de infórmatica de Innova.", "error");
+
+                        }
+                });
+        }
+
+
+    </script>
+
+
+
+
+
+
+}
+

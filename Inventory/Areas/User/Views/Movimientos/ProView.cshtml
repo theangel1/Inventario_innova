@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "Vista Extendida";
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-6 col-sm-6">
+            <h3 class="text-dark"><span class="oi oi-transfer"></span> @ViewData["Title"]</h3>
+        </div>
+    </div>
+
+    <hr class="bg-warning" />
+    <div class="table-responsive">
+        <table class="table table-sm table-responsive-sm" id="tablaMov">
+            <thead>
+                <tr>
+                    <th>Id Movimiento</th>
+                    <th>Nombre</th>
+                    <th>Tipo Movimiento</th>                    
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Sku</th>
+                    <th>Id Producto</th>
+                    <th>Saldo</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            $("#tablaMov").DataTable({
+                pageLength: 20,
+                destroy: true,
+                responsive:true,
+                dom: 'Bfrtip',
+                processing: true,
+                buttons: [
+                    'csv', 'excel', 'pdf'
+                ],
+                ajax: {
+                    url: "/User/Movimientos/GetProView",
+                    type: "GET",
+                    datatype: "json",
+
+                },
+                "columns": [
+                    { "data": "MovimientoId" },
+                    { "data": "Nombre" },
+                    { "data": "tipoMovimiento" },                    
+                    { "data": "descripcion" },
+                    { "data": "cantidad" },
+                    { "data": "sku" },
+                    { "data": "ProductoId" },
+                    { "data": "saldo" },
+                ]
+            });
+        });
+    </script>
+}

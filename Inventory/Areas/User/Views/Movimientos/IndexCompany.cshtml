@@ -1,0 +1,111 @@
+﻿@model Inventory.Models.ViewModel.MovementViewModel
+
+@{
+    ViewData["Title"] = "Movimientos de la Compañia";
+}
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-lg-6">
+            <h3 class="text-dark"><span class="oi oi-transfer"></span> @ViewData["Title"]</h3>
+        </div>
+        <div class="col-lg-6 text-right">
+            <a asp-action="Create" class="btn btn-warning col-lg-3 col-sm-6">Crear Movimiento</a>
+        </div>
+    </div>
+
+    <hr class="bg-warning"/>
+
+    <div class="row">
+        <div class="col-lg-6 col-sm-6">
+            <label asp-for="Movimiento.Empresa"></label>
+            <select asp-for="Movimiento.EmpresaId" asp-items="(SelectList)@ViewData["EmpresaId"]" class="form-control" id="selectEmpresa">
+                <option value="">Seleccionar una Empresa</option>
+            </select>
+        </div>
+        <div class="col-lg-6 col-sm-6 text-right">
+            <button onclick="GetDatosMovimiento();" class="btn btn-warning col-lg-3 col-sm-6"><span class="oi oi-magnifying-glass"></span>Buscar</button>
+        </div>
+    </div>
+    <br />
+    <div class="table-responsive">
+
+
+        <table class="table table-sm" id="tablaMov">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Movimiento.Id)
+                    </th>
+
+                    <th>
+                        @Html.DisplayNameFor(model => model.Movimiento.ApplicationUser.Nombre)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Movimiento.TipoOperacion)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Movimiento.FechaMovimiento)
+                    </th>
+                    <th>Detalles</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+
+        function GetDatosMovimiento() {
+            if ($("#selectEmpresa").val() > 0) {
+
+                var idEmpresa = $("#selectEmpresa").val();
+
+                $("#tablaMov").DataTable({
+                    pageLength: 10,
+                    destroy: true,
+                    dom: 'Bfrtip',
+                    processing: true,
+                    buttons: [
+                        'csv', 'excel', 'pdf'
+                    ],
+                    ajax: {
+                        url: "/User/Movimientos/GetAllMovements",
+                        type: "GET",
+                        data: { "idEmpresa": idEmpresa },
+                        datatype: "json",
+
+                    },
+                    "columns": [
+                        { "data": "id" },
+                        { "data": "applicationUser.nombre" },
+                        { "data": "tipoOperacion" },
+                        {
+                            "data": "fechaMovimiento",
+                            render: function (d) {
+                                return moment(d).format("DD-MM-YYYY");
+                            }
+                        },
+                        {
+                            "mRender": function (data, type, row) {
+                                var linkDetail = '<a href="Details/' + row.id + '" class="btn btn-outline-success btn-sm"><span class="oi oi-justify-center"></span></a>';
+                                return linkDetail;
+                            }
+                        }
+                    ]
+                });
+
+            }
+            else
+                Swal.fire("Información", "Debe seleccionar al menos una empresa", "error");
+        }
+
+
+    </script>
+}

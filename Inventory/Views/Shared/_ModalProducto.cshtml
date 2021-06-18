@@ -1,0 +1,32 @@
+﻿<!-- Modal BUSQUEDA DE Productos-->
+<div class="modal fade" id="modalProductos" tabindex="-1" role="dialog" aria-labelledby="modalProductos" aria-hidden="true">
+    <div class="modal-dialog modal-wide">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark" id="modalProductos">Buscar Productos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="display table table-responsive-sm" id="tablaProductos">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>SKU</th>
+                                <th>Nombre</th>                                
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" class="btn btn-dark" value="Seleccionar" onclick="recursividadEnDetalle()" />
+                <button class="btn btn-warning" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FIN Modal  Productos-->

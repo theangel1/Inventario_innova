@@ -1,0 +1,32 @@
+﻿@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <h1>Administrador - Perfil de Usuario</h1>
+
+    <h4>En esta sección podrá configurar la información de su cuenta</h4>
+
+    <hr class="bg-warning" />
+
+    <div class="row">
+        <div class="col-lg-12">
+            <partial name="_ManageNav" />
+        </div>
+
+    </div>
+    <br />
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

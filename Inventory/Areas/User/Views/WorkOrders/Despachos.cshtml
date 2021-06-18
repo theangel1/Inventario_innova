@@ -1,0 +1,142 @@
+﻿@model IEnumerable<Inventory.Models.WorkOrder>
+
+@{
+    ViewData["Title"] = "Ordenes de Trabajo Despachadas";
+}
+<div class="container-fluid">
+
+    <div class="col-md-12 col-lg-12">
+        <h3 class="text-dark"><span class="oi oi-wrench"></span> @ViewData["Title"]</h3>
+    </div>
+
+    <hr class="bg-warning" />
+    <div class="table-responsive-sm table-responsive-md table-responsive-lg">
+        <table class="table" id="tablaOT">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FechaCreacion)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FechaTermino)
+                    </th>
+                    <th>
+                        Estado
+                    </th>
+                    <th>
+                        ¿Activo?
+                    </th>
+                    <th>
+                        Empresa
+                    </th>
+                    <th>
+                        Retail
+                    </th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<script>
+        $(document).ready(function () {
+            $("#tablaOT").DataTable({
+                pageLength: 10,
+                destroy: true,
+                dom: 'Bfrtip',
+                processing: true,
+                buttons: [
+                    'csv', 'excel', 'pdf'
+                ],
+                ajax: {
+                    url: "/User/WorkOrders/GetDespachos",
+                    type: "GET",
+                    datatype: "json",
+                },
+                "columns": [
+                    {
+                        "data": "fechaCreacion",
+                        render: function (d) {
+                            return moment(d).format("DD-MM-YYYY");
+                        }
+                    },
+                    {
+                        "data": "fechaTermino"
+                        ,
+                        render: function (d) {
+                            return moment(d).format("DD-MM-YYYY");
+                        }
+                    },
+                    { "data": "estadoOT" },
+                    {
+
+                        "mRender": function (data, type, row) {
+                            if (row.isActive == false)
+                                return "<label style='color:gray'><span class='oi oi-circle-x'></span><label>";
+                            return "<label style='color:blue'><span class='oi oi-circle-check'></span><label>";
+                        }
+                    },
+                    { "data": "empresa.nombre" },
+                    {
+                        "mRender": function (data, type, row) {
+                            if (row.nombreRetail == null)
+                                return "--Sin registro--";
+                            else
+                                return row.nombreRetail;
+                        }
+                    },
+                    {
+                        "mRender": function (data, type, row) {                            
+                            var linkDetail = '<a title="Detalles de la Orden de trabajo" href="Details/' + row.id + '" class="btn btn-outline-info btn-sm">Detalles</a>';
+                            var botonDesactivar = '<button type="button" onclick="desactivarDespacho(' + row.id + ')" title="Se dará por terminada la Orden de trabajo y se procederá a desactivar." class="btn btn-outline-success btn-sm">Finalizar despacho</button>';
+
+                            if (row.isActive == 0)
+                                botonDesactivar = '';
+
+                            return linkDetail +botonDesactivar;
+                        }
+                    }
+                ]
+            });
+        });
+
+         function desactivarDespacho(id) {
+
+             $.ajax({
+                    url: '@Url.Action("DesactivarDespacho", "WorkOrders")',
+                    dataType: "json",
+                    type: "GET",
+                    data: { "id": id},
+                    success: function (response) {
+                     console.log(response);
+                        if (response !== "") {
+                           Swal.fire({
+                                    title: 'Innova App',
+                                    text: response,
+                                    type: 'info',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#041c33',
+                                    cancelButtonColor: '#e58620',
+                                    confirmButtonText: 'Aceptar',
+                                    cancelButtonText: 'Salir'
+                                    }).then((result) => {
+                                        if (result.value) {
+                                            window.location.reload(true);
+                                    }
+                                    })
+                        }
+                        else
+                            Swal.fire("Innova App", "Ocurrió algún tipo de error... comunicarse con el departamento de infórmatica de Innova.", "error");
+                        }
+                });
+        }
+</script>
+
+}

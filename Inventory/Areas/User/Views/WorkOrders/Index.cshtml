@@ -1,0 +1,459 @@
+﻿@model IEnumerable<Inventory.Models.WorkOrder>
+
+@{
+    ViewData["Title"] = "Ordenes de trabajo";
+}
+<br />
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            <h3 class="text-dark">@ViewData["Title"]</h3>
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-6 text-right">
+            <a asp-action="Create" class="btn btn-dark col-sm-12 col-md-12 col-lg-3">Crear</a>
+        </div>
+    </div>
+    <hr class="bg-warning" />
+    <div id="alertas"></div>
+
+    <div class="table-responsive">
+        <table id="tablaOT" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>OT</th>
+                    <th>OC</th>
+                    <th>Entrega</th>
+                    <th>Jornada</th>
+                    <th>Taller</th>
+                    <th>Retail</th>
+                    <th>Estado</th>
+                    <th>Nombre</th>
+                    <th>SKU</th>
+                    <th>Cantidad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="alertas"></div>
+
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<script>
+
+    const idOrdenesTrabajo = []
+    $(document).ready(function () {
+
+            var table = $("#tablaOT").DataTable({
+                select: {
+                    style: 'multi'
+                },
+                pageLength: 20,
+                //dom: 'BPlfrtip',
+                destroy: true,
+                processing: true,
+                buttons: [
+
+                    'excel', 'pdf', 'print',
+                    {
+                        extend: 'searchPanes',
+                        config: {
+                            cascadePanes: true
+                        },
+                    },
+                    {
+                        text: 'Recepción Múltiple ',
+                        action: function (e, dt, node, config) {
+                            RecepcionMultiple();
+
+                        }
+                    }
+                ],
+                dom: 'Bfrtip',
+                ajax: {
+                    url: "/User/WorkOrders/GetResumenOrdenTrabajo",
+                    type: "GET",
+                    datatype: "json",
+
+                },
+                columnDefs: [
+                    {
+                        searchPanes: {
+                            show: true
+                        },
+                        targets: [6],
+                    },
+                    {
+                        searchPanes: {
+                            show: true
+                        },
+                        targets: [7],
+                    },
+
+                    {
+                        searchPanes: {
+                            show: true
+                        },
+                        targets: [4],
+                    },
+                    {
+                        searchPanes: {
+                            show: true
+                        },
+                        targets: [5],
+                    },
+                    {
+                        searchPanes: {
+                            show: true
+                        },
+                        targets: [8],
+                    },
+                    {
+                        searchPanes: {
+                            show: false
+                        },
+                        targets: [10],
+                    },
+
+                ],
+
+                "columns": [
+                    { "data": "workOrder.id" },
+                    { "data": "workOrder.ordenCompra" },
+                    {
+                        "data": "workOrder.fechaTermino",
+                        render: function (d) {
+                            return moment(d).format("DD-MM-YYYY");
+                        }
+                    },
+                    { "data": "workOrder.jornada" },
+                    { "data": "workOrder.empresa.nombre" },
+                    { "data": "workOrder.nombreRetail" },
+                    {
+                        "mRender": function (data, type, row) {
+                            switch (row.workOrder.estadoOT) {
+                                case 'Creado': return "Creado";
+                                    break;
+                                case 'Asignado': return "Asignado";
+                                    break;
+                                case 'Solicitado': return "Solicitado";
+                                    break;
+                                case 'Entregado': return "Entregado";
+                                    break;
+                                case 'Pendiente': return 'Pendiente';
+                                    break;
+                                case 'Facturado': return 'Facturado';
+                                    break;
+                                case 'Reasignado': return 'Reasignado';
+                                    break;
+                                case 'Despachar': return 'En despacho';
+                                    break;
+
+                            }
+                        }
+                    },
+                    {
+                        "mRender": function (data, type, row) {
+
+                            return row.producto.nombre;
+                        }
+                    },
+                    { "data": "producto.sku" },
+                    {
+                        "mRender": function (data, type, row) {
+
+                            return '<label>' + row.cantidad + '</label>';
+                        }
+                    },
+                    {
+                        "mRender": function (data, type, row) {
+                            var linkEdit = '<a title="Actualizar Orden de trabajo" href="WorkOrders/Edit/' + row.workOrder.id + '" class="btn btn-outline-dark btn-sm"><span class="oi oi-wrench"></span></a>';
+                            var linkDetail = '<a title="Detalles de la Orden de trabajo" href="WorkOrders/Details/' + row.workOrder.id + '" class="btn btn-outline-warning btn-sm"><span class="oi oi-justify-center"></span></a>';
+                            var linkActualizar = '<button type="button" onclick="ActualizarAEntregado(' + row.workOrder.id + ')" title="Acceso directo entrega OT" class="btn btn-outline-info btn-sm"><span class="oi oi-fork"></span></button>';
+                            var linkDespachoEntregado = '<button type="button" onclick="ActualizarADespachoEntregado(' + row.workOrder.id + ')" title="cambiar estado a despachado" class="btn btn-outline-primary btn-sm">Actualizar estado del despacho</button>';
+                            var checkSymbol = '<button onclick="getEstadoProducto()" class="btn btn-outline-success btn-sm" title="Producto Escaneado"> <span class="oi oi-check"></span></button> ';
+
+                            if (row.role == "Externo") {
+                                linkActualizar = "";
+                            }
+                            switch (row.workOrder.estadoOT) {
+                                case 'Entregado':
+                                    if (!row.isReadyForDeparture == 1) {
+                                        checkSymbol = "";
+                                    }
+
+                                    return linkDetail
+                                        + "<button title='¿Que debo hacer?' onclick='executeInfo()' class='btn btn-outline-primary btn-sm'><span class='oi oi-info'></span></button>"
+                                        + checkSymbol
+                                    ;
+                                    break;
+
+                                case 'Finalizado': return linkDetail;
+                                    break;
+
+                                case 'Pendiente':
+                                    if (row.cantidad == 1)
+                                        return linkEdit + ' ' + linkDetail + ' ' + linkActualizar;
+                                    else
+                                        return linkEdit + ' ' + linkDetail;
+                                    break;
+
+                                case 'Facturado':
+                                    if (row.cantidad == 1)
+                                        return linkEdit + ' ' + linkDetail + ' '+ linkActualizar;
+                                    else
+                                        return linkEdit + ' ' + linkDetail;
+                                    break;
+
+                                case 'Despachar':
+                                    return linkDespachoEntregado;
+
+                                case 'Creado':
+                                    var linkDelete = '<button onclick="eliminarOt(' + row.workOrder.id + ')" class="btn btn-outline-danger btn-sm"><span class="oi oi-trash"></span> </button>'
+                                    return linkEdit + ' ' + linkDetail + ' ' + linkDelete;
+                                    break;
+
+                                default:
+                                    return linkEdit + ' ' + linkDetail;
+                                    break;
+                            }
+                        }
+                    }
+                ]
+            });
+
+            //table.searchPanes.container().prependTo(table.table().container());
+
+            //Usando plugin select de datatables
+        table.on('select', function (e, dt, type, indexes) {
+
+            //obteniendo la data de la fila seleccionada
+            var rowData = table.rows(indexes).data()[0];
+
+            //si el estado es facturado, obtendre el id, y lo almaceno en un array. Si no, no pasará nada.
+            if (rowData.workOrder.estadoOT == "Facturado") {
+
+                idOrdenesTrabajo.push(rowData.workOrderId);
+
+            }
+        });
+        });
+
+        function eliminarOt(id) {
+             $.ajax({
+                    url: '@Url.Action("EliminarOT", "WorkOrders")',
+                    dataType: "json",
+                    type: "GET",
+                    data: { "id": id},
+                    success: function (response) {
+
+                        if (response !== "") {
+                           Swal.fire({
+                                    title: 'Innova App',
+                                    text: response,
+                                    type: 'info',
+                                    confirmButtonColor: '#041c33',
+                                    confirmButtonText: '¡Ok!',
+                                    }).then((result) => {
+                                    if (result.value) {
+                                     window.location.reload(true);
+                                    }
+                                    })
+                        }
+                        else
+                            Swal.fire("Innova App", "Ocurrió algún tipo de error... comunicarse con el departamento de infórmatica de Innova.", "error");
+                        }
+             });
+        }
+    function executeInfo() {
+        Swal.fire(
+            'App Innova',
+            'Para poder despachar esta orden de trabajo, debes escanear los LPN de los productos.',
+            'info'
+        )
+        }
+
+        function getEstadoProducto() {
+            Swal.fire(
+                'App Innova',
+                'Este producto ya fue escaneado vía LPN.',
+                'success'
+            )
+        }
+    function RecepcionMultiple() {
+        if (idOrdenesTrabajo.length > 0) {
+              $.ajax({
+                     url: '@Url.Action("RecepcionMultiple", "WorkOrders")',
+                    dataType: "json",
+                    type: "POST",
+                 data: { idOrdenesTrabajo: idOrdenesTrabajo},
+                    success: function (response) {
+                        if (response !== "") {
+                           Swal.fire({
+                                    title: 'Innova App',
+                                    text: response,
+                                    type: 'info',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#041c33',
+                                    cancelButtonColor: '#e58620',
+                                    confirmButtonText: 'Aceptar',
+                                    cancelButtonText: 'Salir'
+                                    }).then((result) => {
+                                    if (result.value) {
+                                    window.location.reload(true);
+                                    }
+                                    })
+                        }
+                        else
+                            Swal.fire("Innova App", "Ocurrió algún tipo de error... comunicarse con el departamento de infórmatica de Innova.", "error");
+                        }
+                });
+        }
+        else {
+            Swal.fire("B2B Innova", "Ninguna fila seleccionada.", "error");
+        }
+
+        }
+
+        function ActualizarEstado(id) {
+
+             $.ajax({
+                     url: '@Url.Action("ClosePost", "WorkOrders")',
+                    dataType: "json",
+                    type: "GET",
+                    data: { "id": id},
+                    success: function (response) {
+
+                        if (response !== "") {
+                           Swal.fire({
+                                    title: 'Innova App',
+                                    text: response,
+                                    type: 'info',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#041c33',
+                                    cancelButtonColor: '#e58620',
+                                    confirmButtonText: 'Aceptar',
+                                    cancelButtonText: 'Salir'
+                                    }).then((result) => {
+                                    if (result.value) {
+                                    window.location.reload(true);
+                                    }
+                                    })
+                        }
+                        else
+                            Swal.fire("Innova App", "Ocurrió algún tipo de error... comunicarse con el departamento de infórmatica de Innova.", "error");
+                        }
+                });
+        }
+
+        function ActualizarAEntregado(id) {
+
+             $.ajax({
+                    url: '@Url.Action("ActualizarEntregaOt", "WorkOrders")',
+                    dataType: "json",
+                    type: "GET",
+                    data: { "id": id},
+                    success: function (response) {
+
+                        if (response !== "") {
+                           Swal.fire({
+                                    title: 'Innova App',
+                                    text: response,
+                                    type: 'info',
+                                    confirmButtonColor: '#041c33',
+                                    cancelButtonColor: '#e58620',
+                                    confirmButtonText: 'Aceptar',
+                                    }).then((result) => {
+                                    if (result.value) {
+                                    window.location.reload(true);
+                                    }
+                                    })
+                        }
+                        else
+                            Swal.fire("Innova App", "Ocurrió algún tipo de error... comunicarse con el departamento de infórmatica de Innova.", "error");
+                        }
+             });
+        }
+
+    function ActualizarADespachoEntregado(id) {
+
+             $.ajax({
+                    url: '@Url.Action("ActualizarADespachoEntregado", "WorkOrders")',
+                    dataType: "json",
+                    type: "GET",
+                    data: { "id": id},
+                    success: function (response) {
+
+                        if (response !== "") {
+                           Swal.fire({
+                                    title: 'Innova App',
+                                    text: response,
+                                    type: 'info',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#041c33',
+                                    cancelButtonColor: '#e58620',
+                                    confirmButtonText: 'Aceptar',
+                                    cancelButtonText: 'Salir'
+                                    }).then((result) => {
+                                    if (result.value) {
+                                    window.location.reload(true);
+                                    }
+                                    })
+                        }
+                        else
+                            Swal.fire("Innova App", "Ocurrió algún tipo de error... comunicarse con el departamento de infórmatica de Innova.", "error");
+                        }
+                });
+        }
+</script>
+
+    @if (!string.IsNullOrEmpty(ViewBag.serverMessage))
+    {
+        <script type="text/javascript">
+          Swal.fire("¡Información!", '@ViewBag.serverMessage', "info");
+        </script>
+    }
+
+
+
+
+    @if (!string.IsNullOrEmpty(ViewBag.Message))
+    {
+        <script type="text/javascript">
+          Swal.fire("¡Información!", '@ViewBag.Message', "info");
+        </script>
+    }
+
+    @if (TempData["alert"] != null)
+    {
+        <script type="text/javascript">
+
+            var alert = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                '<strong>¡Atención!</strong> ' + '@TempData["alert"].ToString()' +
+                '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                '<span aria-hidden="true">&times;</span>' +
+                '</button>' +
+                '</div>',
+                div = document.getElementById("alertas");
+            div.insertAdjacentHTML('beforeend', alert);
+
+        </script>
+    }
+
+    @if (!string.IsNullOrEmpty(@Context.Request.Query["recepcion"]))
+    {
+        <script>
+            Swal.fire("Información", '@Context.Request.Query["recepcion"]', 'success');
+        </script>
+    }
+
+
+
+}
+

@@ -1,0 +1,193 @@
+﻿@page
+@{
+    Layout = "/Views/Shared/_LayoutProduccion.cshtml";
+}
+@model IEnumerable<Inventory.Models.WorkOrder>
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+<style>
+    .mdl-button--raised.mdl-button--colored {
+        background: #fc3;
+        color: black;
+    }
+
+        .mdl-button--raised.mdl-button--colored:hover {
+            background: #fc3;
+            color: black;
+        }
+
+    .mdl-data-table {
+        white-space: normal;
+        font-size: 18px;
+    }
+
+        .mdl-data-table th {
+            color: black;
+        }
+
+        .mdl-data-table td {
+            text-align: center;
+        }
+
+    /*.pagination {
+        padding-left: 970px;
+    }*/
+    div.dataTables_wrapper {
+        width: 100%;
+    }
+
+        div.dataTables_wrapper div.dataTables_paginate {
+            padding-top: 0px;
+            margin-right: 0px;
+            margin-left: 55%;
+        }
+
+    .dataTables_wrapper .dataTables_info {
+        color: white;
+        margin-left: 1%;
+    }
+</style>
+<div class="area">
+    <ul class="circles">
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+    <div class="dark-translucent-bg">
+        <div class="row" style="width:100%;">
+            <div class="col-lg-12 col-xl-12 col-sm-12 col-md-12 text-center">
+                <a asp-area="User" asp-controller="Home" asp-action="Index">
+                    <img src="~/img/logo innova.png" class="col-4 col-sm-3 col-md-2 col-lg-2 col-xl-1" />
+                </a>
+            </div>
+            <div class="col-lg-12 col-xl-12 col-sm-12 col-md-12">
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <div class="table-responsive">
+                        <table id="tablaTick" class="mdl-data-table" style="width: 98%; margin-left: 15px">
+                            <thead>
+                                <tr>
+                                    <th style="background-color: #fc3;" class="text-center"><font size="5">Cita</font></th>
+                                    <th style="background-color: #fc3;" class="text-center"><font size="5">OC</font></th>
+                                    <th style="background-color: #fc3;" class="text-center"><font size="5">Taller</font></th>
+                                    <th style="background-color: #fc3;" class="text-center"><font size="5">Estado</font></th>
+                                    <th style="background-color: #fc3;" class="text-center"><font size="5">Fecha Término</font></th>
+                                    <th style="background-color: #fc3;" class="text-center"><font size="5">Camión</font></th>
+                                    <th style="background-color: #fc3;" class="text-center"><font size="5">Salida</font></th>
+                                    <th style="background-color: #fc3;" class="text-center"><font size="5">Retail</font></th>
+                                    <th style="background-color: #fc3;" class="text-center"><font size="5">Factura</font></th>
+                                    <th style="background-color: #fc3;" class="text-center"><font size="5">Producto</font></th>
+                                    <th style="background-color: #fc3;" class="text-center"><font size="5">Cant.</font></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+
+            var table = $("#tablaTick").DataTable({
+                "order": [[3, "asc"]],
+                pageLength: 25,
+                destroy: true,
+                dom: 'Bfrtip',
+                processing: true,
+                filter: false,
+                columnDefs: [
+                    {
+                        targets: [0, 1, 2],
+                        className: 'mdl-data-table__cell--non-numeric'
+                    }
+                ],
+                buttons: [
+
+                ],
+                ajax: {
+                    url: "/User/Home/GetProduccion",
+                    type: "GET",
+                    datatype: "json"
+                },
+                "columns": [
+                    {
+                        "data": "workOrder.cita.numeroCita",
+                    },
+                    {
+                        "data": "workOrder.ordenCompra",
+                    },
+                    {
+                        "data": "workOrder.empresa.nombre",
+                    },
+                    {
+                        "mRender": function (data, type, row) {
+                            switch (row.workOrder.estadoOT) {
+                                case 'Creado': return '<label style="color:#4293D2">Creado</label>';
+                                    break;
+                                case 'CreacionViaExcel': return "<label style='color:#259134'>Creado</label>";
+                                    break;
+                                case 'Solicitado': return "<label style='color:#e38b39'>Solicitado</label>";
+                                    break;
+                                case 'Entregado': return 'Entregado';
+                                    break;
+                                case 'Pendiente': return 'Pendiente';
+                                    break;
+                                case 'Facturado': return 'Facturado';
+                                    break;
+                                case 'Devolucion': return 'Devolucion';
+                                    break;
+                                case 'Despachar': return '<label style="color:#00b75c"><i class="fas fa-truck"></i>En despacho</label>';
+                                    break;
+
+                            }
+                        }
+                    },
+                    {
+                        "data": "workOrder.fechaTermino",
+                        render: function (d) {
+                            return moment(d).format("DD-MM-YYYY");
+                        }
+                    },
+                    { "data": "workOrder.cita.patente" },
+                    { "data": "workOrder.cita.horaSalidaCamion"},
+                    { "data": "workOrder.nombreRetail" },
+                    { "data": "workOrder.numeroFacturaRetail" },                    
+                    { "data": "producto.nombre" },
+                    { "data": "cantidad" },
+
+                ],
+                "oLanguage": {
+                    "sInfo": "Mostrando de _START_ a _END_. De un total de _TOTAL_ registros",
+                    "sInfoEmpty": "Mostrando de 0 a 0 de 0 registros",
+                    "oPaginate": {
+                        "sPrevious": "Anterior",
+                        "sNext": "Siguiente"
+                    }
+                }
+            });
+
+            setInterval(function () {
+                $("#divAngels").fadeOut('slow');
+                table.ajax.reload();
+                $("#divAngels").fadeIn('slow');
+            }, 10000);
+
+        });
+    </script>
+}

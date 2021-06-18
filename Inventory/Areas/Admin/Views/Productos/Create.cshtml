@@ -1,0 +1,79 @@
+﻿@model Inventory.Models.ViewModel.ProductViewModel
+
+@{
+    ViewData["Title"] = "Crear artículo";
+}
+<div class="container-fluid">
+
+    <h3 class="text-dark">@ViewData["Title"]</h3>
+
+    <hr class="bg-warning" />
+
+    <form method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            <div class="form-group col-sm-6 col-md-12 col-lg-4">
+                <label asp-for="Producto.Nombre" class="control-label"></label>
+                <input asp-for="Producto.Nombre" class="form-control" />
+                <span asp-validation-for="Producto.Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group col-sm-6 col-md-12 col-lg-4">
+                <label asp-for="Producto.SKU" class="control-label"></label>
+                <input asp-for="Producto.SKU" class="form-control" />
+                <span asp-validation-for="Producto.SKU" class="text-danger"></span>
+            </div>
+
+
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6 col-md-12 col-lg-4">
+                <label asp-for="Producto.PrecioCompra" class="control-label"></label>
+                <input asp-for="Producto.PrecioCompra" class="form-control" />
+                <span asp-validation-for="Producto.PrecioCompra" class="text-danger"></span>
+            </div>
+            <div class="form-group col-sm-6 col-md-12 col-lg-4">
+                <label asp-for="Producto.PrecioVenta" class="control-label"></label>
+                <input asp-for="Producto.PrecioVenta" class="form-control" />
+                <span asp-validation-for="Producto.PrecioVenta" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6 col-md-12 col-lg-4">
+                <label asp-for="Producto.StockMinimo" class="control-label"></label>
+                <input asp-for="Producto.StockMinimo" class="form-control" />
+                <span asp-validation-for="Producto.StockMinimo" class="text-danger"></span>
+            </div>
+            <div class="form-group col-sm-6 col-md-12 col-lg-4">
+                <label asp-for="Producto.StockMaximo" class="control-label"></label>
+                <input asp-for="Producto.StockMaximo" class="form-control" />
+                <span asp-validation-for="Producto.StockMaximo" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-6 col-md-12 col-lg-4">
+                <label asp-for="Producto.TipoProducto" class="control-label"></label>
+                <select asp-for="Producto.TipoProducto" class="form-control" asp-items="Html.GetEnumSelectList<TipoProducto>()"></select>
+                <span asp-validation-for="Producto.TipoProducto" class="text-danger"></span>
+            </div>
+
+            <div class="form-group col-sm-6 col-md-12 col-lg-4">                
+                    <label asp-for="Producto.ImagenUrl"></label>               
+                
+                    <input type="file" name="files" class="form-control" />
+                
+            </div>
+        </div>
+        <br />
+        <div class="form-group text-center">
+            <button type="submit" value="Crear" class="btn btn-dark col-sm-6 col-md-5 col-lg-2 btn-lg">
+                <span class="oi oi-plus"></span>
+            </button>
+            <a asp-action="Index" class="btn btn-warning col-sm-6 col-md-5 col-lg-3 btn-lg">
+                <span class="oi oi-arrow-thick-left"></span>
+            </a>
+        </div>
+    </form>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

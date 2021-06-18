@@ -1,0 +1,84 @@
+﻿@model IEnumerable<Inventory.Models.Empresa>
+
+@{
+    ViewData["Title"] = "Empresas registradas";
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-6 col-lg-6">
+            <h3 class="text-dark">@ViewData["Title"]</h3>
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-6 text-right">
+            <a asp-action="Create" class="btn btn-dark col-sm-12 col-md-12 col-lg-3">Crear</a>
+        </div>
+    </div>
+    <hr class="bg-warning" />
+    <br />
+    <div class="table-responsive">
+        <table class="table table-responsive-sm" id="tablaEmpresa">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Nombre)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Rut)
+                    </th>
+                    <th>
+                        Opciones
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+    <script>
+        $(document).ready(function () {
+
+            $("#tablaEmpresa").DataTable({
+                pageLength: 10,
+                destroy: true,
+                dom: 'Bfrtip',
+                processing: true,
+                buttons: [
+                    'csv', 'excel', 'pdf'
+                ],
+                ajax: {
+                    url: "/Admin/Empresas/GetEmpresas",
+                    type: "GET",
+                    datatype: "json",
+
+                },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "nombre" },
+                    { "data": "rut" },
+                    {
+                        "mRender": function (data, type, row) {
+                            var linkEdit = '<a href="Empresas/Edit/' + row.id + '" class="btn btn-outline-dark btn-sm"><span class="oi oi-wrench"></span></a>';
+                            var linkDetail = '<a href="Empresas/Details/' + row.id + '" class="btn btn-outline-warning btn-sm"><span class="oi oi-justify-center"></span></a>';
+                            var linkDelete = '<a href="Empresas/Delete/' + row.id + '" class="btn btn-outline-danger btn-sm"><span class="oi oi-trash"></span></a>';
+                            return linkEdit + ' ' + linkDetail + ' ' + linkDelete;
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+
+    @if (!string.IsNullOrEmpty(@Context.Request.Query["serverMessage"]))
+    {
+        <script>
+            Swal.fire("Información", '@Context.Request.Query["serverMessage"]', 'info');
+        </script>
+    }
+}

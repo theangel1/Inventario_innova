@@ -1,0 +1,60 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Registro";
+}
+<div class="container-fluid">
+
+    <h1>Crear un nuevo usuario</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <hr class="bg-warning" />
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Nombre"></label>
+                    <input asp-for="Input.Nombre" class="form-control" />
+                    <span asp-validation-for="Input.Nombre" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.Email"></label>
+                    <input asp-for="Input.Email" class="form-control" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.Password"></label>
+                    <input asp-for="Input.Password" class="form-control" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.ConfirmPassword"></label>
+                    <input asp-for="Input.ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-md-5">
+                        <label asp-for="Input.EmpresaId"></label>
+                    </div>
+                    <div class="form-group">
+                        @Html.DropDownList("Input.EmpresaId", new SelectList((System.Collections.IEnumerable)
+                       ViewData["temp"], "Id", "Nombre"), new { @class = "form-control" })
+                    </div>
+
+                </div>
+                <div class="row">
+                    <button type="submit" class="btn btn-dark col-lg-6">Registrar</button>
+                    <a asp-action="Index" class="btn btn-warning col-lg-6">Volver</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

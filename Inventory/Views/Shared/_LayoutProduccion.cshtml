@@ -1,0 +1,73 @@
+﻿@using Inventory.Utility
+<!DOCTYPE html>
+<html lang="es-cl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sisgen Chile">
+    <meta name="author" content="Angel Pinilla Ibarra">
+    <meta name="keyword" content="Factura Electronica, SII">
+    <link rel="shortcut icon" href="~/logo_innovamobelsad_32x32.png" type="image/x-icon" />
+    <title>B2B Innova</title>
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    </environment>
+
+    <!--Datatables-->
+    <link rel="stylesheet" href="~/lib/DataTables-1.10.18/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="~/lib/Buttons-1.5.4/css/buttons.dataTables.min.css" />
+    <link rel="stylesheet" href="~/css/select.dataTables.min.css" />
+    <link rel="stylesheet" href="~/lib/fontawesome-free-5.11.2-web/css/all.css" />
+    <!-- CSS -->
+    <link rel="stylesheet" href="~/css/site.css" />
+
+
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+
+    <!-- Material Design for Datatables-->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.1.0/material.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.datatables.net/1.10.20/css/dataTables.material.min.css">
+
+</head>
+<body>
+    <main role="main" >
+        @RenderBody()
+    </main>
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    </environment>
+
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js" asp-append-version="true"></script>
+    <script src="~/lib/Buttons-1.5.4/js/dataTables.buttons.min.js" asp-append-version="true"></script>
+    <script src="~/lib/Buttons-1.5.4/js/buttons.html5.min.js" asp-append-version="true"></script>
+    <script src="~/lib/Buttons-1.5.4/js/buttons.print.min.js" asp-append-version="true"></script>
+    <script src="~/lib/Buttons-1.5.4/js/buttons.colVis.min.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js" asp-append-version="true"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+    <script src="~/js/dataTables.select.min.js"></script>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+
+    <!-- Material Design for Datatables-->
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/dataTables.material.min.js"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+

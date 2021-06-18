@@ -1,0 +1,351 @@
+﻿@model Inventory.Models.ViewModel.WorkOrderViewModel
+@using Inventory.Extensions
+@{
+    ViewData["Title"] = "Actualizar Orden de Trabajo";
+
+}
+
+<div class="container-fluid">
+    <h3 class="text-dark">@ViewData["Title"] N°  <label style="color:darkorange">@Model.WorkOrder.Id </label></h3>
+    <hr class="bg-warning" />
+    <div id="alertas"></div>
+
+    <form asp-action="Edit" id="formulario" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="WorkOrder.Id" id="workOrderID" />
+        <input type="hidden" asp-for="WorkOrder.EmpresaId" />
+        <div class="row">
+            <div class="col-sm-6 col-md-12 col-lg-6">
+                <div class="form-group">
+                    <label asp-for="WorkOrder.NumeroFacturaExterno" class="control-label"></label>
+                    <input asp-for="WorkOrder.NumeroFacturaExterno" class="form-control" />
+                    <span asp-validation-for="WorkOrder.NumeroFacturaExterno" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-12 col-lg-6">
+                <div class="form-group">
+                    <label asp-for="WorkOrder.EstadoOT" class="control-label"></label>
+                    <select asp-for="WorkOrder.EstadoOT" class="form-control" id="SelectEstado" onchange="SetCantidad();">
+
+                        @if (Model.WorkOrder.EstadoOT == EstadoOT.Pendiente ||
+                       Model.WorkOrder.EstadoOT == EstadoOT.Facturado ||
+                       Model.WorkOrder.EstadoOT == EstadoOT.Reasignado)
+                        {
+                            <option value="2">Entregar</option>
+                        }
+                        else if (Model.WorkOrder.EstadoOT == EstadoOT.Creado ||
+                            Model.WorkOrder.EstadoOT == EstadoOT.Asignado ||
+                            Model.WorkOrder.EstadoOT == EstadoOT.Solicitado)
+                        {
+                            <option value="1">Facturado</option>
+                        }
+                    </select>
+                    <span asp-validation-for="WorkOrder.EstadoOT" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6 col-md-12 col-lg-6">
+                <div class="form-group">
+                    <label asp-for="WorkOrder.FechaCreacion" class="control-label"></label>
+                    <input asp-for="WorkOrder.FechaCreacion" class="form-control" readonly />
+                    <span asp-validation-for="WorkOrder.FechaCreacion" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-12 col-lg-6">
+                <div class="form-group">
+                    <label asp-for="WorkOrder.FechaTermino" class="control-label"></label>
+                    <input asp-for="WorkOrder.FechaTermino" class="form-control" type="date" />
+                    <span asp-validation-for="WorkOrder.FechaTermino" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6 col-md-12 col-lg-6">
+                <div class="form-group">
+                    <label asp-for="WorkOrder.Jornada" class="control-label"></label>
+                    <select asp-for="WorkOrder.Jornada" class="form-control" asp-items="Html.GetEnumSelectList<Jornada>()"></select>
+                    <span asp-validation-for="WorkOrder.Jornada" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-12 col-lg-6">
+                <div class="form-group">
+                    <label class="control-label">Nombre Usuario</label>
+                    <input asp-for="WorkOrder.User.Nombre" class="form-control" readonly />
+                    <span asp-validation-for="WorkOrder.UserId" class="text-danger"></span>
+                </div>
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6 col-md-12 col-lg-6">
+                <div class="form-group">
+                    <label asp-for="WorkOrder.OrdenCompra"></label>
+                    <input asp-for="WorkOrder.OrdenCompra" class="form-control" readonly />
+                    <span asp-validation-for="WorkOrder.OrdenCompra"></span>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-12 col-lg-6">
+                <div class="form-group">
+                    <label asp-for="WorkOrder.NombreRetail"></label>
+                    <input asp-for="WorkOrder.NombreRetail" class="form-control" readonly />
+                    <span asp-validation-for="WorkOrder.NombreRetail"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6 col-md-12 col-lg-6">
+                <div class="form-group">
+                    <label asp-for="WorkOrder.Comentario"></label>
+                    <input asp-for="WorkOrder.Comentario" class="form-control" />
+                </div>
+            </div>
+
+            @if (Model.WorkOrder.EstadoOT == EstadoOT.Facturado || Model.WorkOrder.EstadoOT == EstadoOT.Pendiente)
+            {
+                @if (Model.WorkOrder.IsReassigned)
+                {
+                    <div class="col-sm-6 col-md-12 col-lg-6">
+                        <div class="form-group">
+                            <label asp-for="@Model.WorkOrder.OrdenTrabajoReasignadaID">Orden de Trabajo Asociada</label>
+                            <input asp-for="@Model.WorkOrder.OrdenTrabajoReasignadaID" class="form-control" readonly />
+                        </div>
+                    </div>
+                }
+                else if (Model.WorkOrdersList == null)
+                {
+                    <div class="col-sm-6 col-md-12 col-lg-6">
+                        <div class="form-group">
+                            <label asp-for="@Model.WorkOrder.OrdenTrabajoReasignadaID">Reasignar</label>
+                            <select asp-for="@Model.WorkOrder.OrdenTrabajoReasignadaID" class="form-control" id="selector">
+                                <option value="" selected>-- Seleccione --</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+                else if (Model.WorkOrdersList.Count() > 0)
+                {
+                    <div class="col-sm-6 col-md-12 col-lg-6">
+                        <div class="form-group">
+                            <label asp-for="@Model.WorkOrder.OrdenTrabajoReasignadaID">Reasignar</label>
+                            <select asp-for="@Model.WorkOrder.OrdenTrabajoReasignadaID" id="selector" asp-items="Model.WorkOrdersList.ToSelectListItemWorkOrder(Model.WorkOrdersList.First().ToString())" class="form-control" onchange="UpdateOt(this.value, false);">
+                                <option value="" selected>-- Seleccione --</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+
+            }
+
+        </div>
+        <hr class="bg-warning" />
+        <h5 class="text-dark col-sm-6 col-md-12 col-lg-4">Detalle Orden de Trabajo</h5>
+
+        <table class="table table-responsive-sm" id="tablaDetalle">
+            <thead>
+                <tr>
+                    <th width="7%">SKU</th>
+                    <th width="35%">Descripción</th>
+                    <th width="9%">Cantidad</th>
+                    <th width="9%">Cantidad Solicitada por Externo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.DetalleOT.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            <input type="hidden" asp-for="DetalleOT[i].ProductoId" class="form-control" readonly />
+                            <input asp-for="DetalleOT[i].Producto.SKU" class="form-control" readonly />
+                        </td>
+                        <td>
+                            <input asp-for="DetalleOT[i].Producto.Nombre" class="form-control" readonly />
+                        </td>
+                        <td>
+                            <input asp-for="DetalleOT[i].Cantidad" class="form-control" readonly />
+                        </td>
+                        <td>
+                            <input asp-for="DetalleOT[i].CantidadNueva" class="form-control" readonly />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+        <hr class="bg-warning" />
+        <div class="text-center">
+            @if (Model.WorkOrder.EstadoOT == EstadoOT.Reasignado)
+            {
+                <input type="hidden" asp-for="WorkOrder.OrdenTrabajoReasignadaID" id="otReasignada" />
+                <button type="button" onclick="UpdateOt(null,true);" class="btn btn-secondary col-sm-6 col-md-5 col-lg-3">RollBack</button>
+            }
+            <button type="submit" asp-action="UpdateWorkOrder" class="btn btn-outline-info">Actualizar Datos Orden de Trabajo</button>
+
+            <input type="submit" value="Avanzar al siguiente estado" class="btn btn-dark col-sm-6 col-md-5 col-lg-3" />
+
+            <a asp-action="Index" class="btn btn-warning col-sm-6 col-md-5 col-lg-3">Volver a la lista</a>
+        </div>
+
+    </form>
+
+</div>
+
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+    <script>
+
+    var order;
+    var value;
+
+    $('#selector').change(function () {
+        value = $(this).val();
+    });
+
+    if ($("#SelectEstado").val() == 2) {
+            for (var i = 0; i < @Model.DetalleOT.Count; i++)
+            {
+                $('input[name="DetalleOT[' + i + '].Cantidad"').prop('readonly', false);
+            }
+        }
+
+        function SetCantidad()
+        {
+            if ($("#SelectEstado").val() == 2) {
+                Swal.fire("Información", "Se habilitó la cantidad a entregar.", "success");
+                for (var i = 0; i < @Model.DetalleOT.Count; i++)
+                {
+                    $('input[name="DetalleOT[' + i + '].Cantidad"').prop('readonly', false);
+                }
+            }
+            else
+            {
+                for (var i = 0; i < @Model.DetalleOT.Count; i++)
+                {
+                    $('input[name="DetalleOT[' + i + '].Cantidad"').prop("readonly", true);
+                }
+            }
+        }
+
+        function UpdateWorkOrder() {
+            console.log("Aca estoy");
+        }
+
+function UpdateOt(idSelect, roll) {
+
+    if (idSelect == null) {
+
+        var reasignada = $("#otReasignada").val();
+        idSelect = reasignada;
+    }
+
+    if (idSelect != null) {
+
+        Swal.fire({
+        title: 'Actualización de reasignación de Orden de Trabajo',
+        text: "Si elige la opción cancelar, no se aplicará ningún cambio.",
+        type: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '¡Actualizar!',
+        cancelButtonText: 'Cancelar'
+        }).then((result) => {
+        if (result.value) {
+             var idOT = $("#workOrderID").val();
+
+                $.ajax({
+                    url: '@Url.Action("ReasignacionMain", "WorkOrders")',
+                    dataType: "json",
+                    type: "GET",
+                    data: { "otFromdbID": idOT, "otReasignada": idSelect, "rollback": roll },
+                    success: function (response) {
+
+                        if (response !== "") {
+                           Swal.fire({
+                                    title: 'Innova App',
+                                    text: response.mensaje,
+                                    type: 'info',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Aceptar',
+                                    cancelButtonText: 'Cancelar'
+                                    }).then((result) => {
+                                    if (result.value) {
+                                           window.location.reload(true);
+
+                                        } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                            $('#selector').val('');
+                                            Swal.fire("Innova App", "Cancelado", "info");
+                                        }
+                                        })
+                        }
+                        else
+                            Swal.fire("Innova App", "Ocurrió algún tipo de error... comunicarse con el departamento de infórmatica de Innova.", "error");
+                        }
+                });
+
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                $('#selector').val('');
+                Swal.fire("Innova App", "Cancelado", "info");
+            }
+        })
+    }
+}
+
+
+    </script>
+
+
+    @if (!string.IsNullOrEmpty(ViewBag.serverError))
+    {
+        <script type="text/javascript">
+          Swal.fire("¡Información!", '@ViewBag.serverError', "error");
+        </script>
+    }
+
+    @if (!string.IsNullOrEmpty(ViewBag.info))
+    {
+        <script type="text/javascript">
+          Swal.fire("¡Información!", '@ViewBag.info', "info");
+        </script>
+    }
+
+    @if (TempData["serverAlert"] != null)
+    {
+        <script type="text/javascript">
+          Swal.fire("¡Información!", '@TempData["serverAlert"].ToString()', "error");
+        </script>
+    }
+
+    @if (TempData["updated"] != null)
+    {
+        <script type="text/javascript">
+          Swal.fire("¡Información!", '@TempData["updated"].ToString()', "info");
+        </script>
+    }
+    
+
+    @if (TempData["alert"] != null)
+    {
+        <script type="text/javascript">
+
+            var alert = '<div class="alert alert-info alert-dismissible fade show" role="alert">' +
+                '<strong>¡Atención!</strong> ' + '@TempData["alert"].ToString()' +
+                '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                '<span aria-hidden="true">&times;</span>' +
+                '</button>' +
+                '</div>',
+                div = document.getElementById("alertas");
+            div.insertAdjacentHTML('beforeend', alert);
+
+        </script>
+    }
+
+}

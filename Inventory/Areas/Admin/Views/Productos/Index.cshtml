@@ -1,0 +1,80 @@
+﻿@model IEnumerable<Inventory.Models.Producto>
+
+@{
+    ViewData["Title"] = "Productos";
+    ViewData["Button"] = @Context.Request.Query["Type"];
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6 col-md-6 col-lg-6">
+            <h3 class="text-dark">@ViewData["Title"]</h3>
+        </div>
+        <div class="col-sm-6 col-md-6 col-lg-6 text-right">
+            <a asp-action="Create" class="btn btn-dark col-sm-6 col-md-12 col-lg-3 ">Crear @ViewData["Button"]</a>
+        </div>
+    </div>
+    <hr class="bg-warning"/>
+    <br />
+    <div class="table-responsive">
+        <table class="table table-sm" id="tablaProducto">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.SKU)</th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Nombre)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.PrecioCompra)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.PrecioVenta)
+                    </th>
+                    
+                    <th>Editar/Detalles/Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+
+            $("#tablaProducto").DataTable({
+                pageLength: 10,
+                destroy: true,
+                dom: 'Bfrtip',
+                processing: true,
+                buttons: [
+                    'csv', 'excel', 'pdf'
+                ],
+                ajax: {
+                    url: "/Admin/Productos/LoadProductos",
+                    data: { "Type": '@Context.Request.Query["Type"]'},
+                    type: "GET",
+                    datatype: "json",
+
+                },
+                "columns": [
+                    { "data": "sku" },
+                    { "data": "nombre" },
+                    { "data": "precioCompra" },
+                    { "data": "precioVenta" },                    
+                    {
+                        "mRender": function (data, type, row) {
+                            var linkEdit = '<a href="Productos/Edit/'+row.id+'" class="btn btn-outline-dark btn-sm"><span class="oi oi-wrench"></span></a>';
+                            var linkDetail = '<a href="Productos/Details/'+row.id+'" class="btn btn-outline-warning btn-sm"><span class="oi oi-justify-center"></span></a>';
+                            var linkDelete = '<a href="Productos/Delete/'+row.id+'" class="btn btn-outline-danger btn-sm"><span class="oi oi-trash"></span></a>';
+                            return linkEdit + ' ' + linkDetail + ' ' + linkDelete;
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+}

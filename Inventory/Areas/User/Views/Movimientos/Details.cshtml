@@ -1,0 +1,71 @@
+﻿@model Inventory.Models.ViewModel.MovementViewModel
+
+@{
+    ViewData["Title"] = "Detalle de Movimiento";
+}
+<div class="container-fluid">
+    <h3 class="text-dark">@ViewData["Title"]</h3>
+    <hr class="bg-warning" />
+    <dl class="row">
+        <dt class="col-sm-2 col-md-3">
+            Empresa
+        </dt>
+        <dd class="col-sm-10 col-md-9">
+            @Html.DisplayFor(model => model.Movimiento.Empresa.Nombre)
+        </dd>
+        <dt class="col-sm-2 col-md-3">
+            Usuario Encargado
+        </dt>
+        <dd class="col-sm-10 col-md-9">
+            @Html.DisplayFor(model => model.Movimiento.ApplicationUser.Nombre)
+        </dd>
+        <dt class="col-sm-2 col-md-3">
+            @Html.DisplayNameFor(model => model.Movimiento.TipoOperacion)
+        </dt>
+        <dd class="col-sm-10 col-md-9">
+            @Html.DisplayFor(model => model.Movimiento.TipoOperacion)
+        </dd>
+
+        <dt class="col-sm-2 col-md-3">
+            @Html.DisplayNameFor(model => model.Movimiento.FechaMovimiento)
+        </dt>
+        <dd class="col-sm-10 col-md-9">
+            @Model.Movimiento.FechaMovimiento.ToString("dd/MM/yyyy hh:mm tt")
+        </dd>
+    </dl>
+    <strong>Detalle de productos</strong>
+    <br />
+    <div class="table-responsive-sm">
+        <table class="table table-sm ">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.DetalleMovimiento.Count > 0)
+                {
+                    @foreach (var item in Model.DetalleMovimiento)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(c => item.Id)</td>
+                            <td>@Html.DisplayFor(c => item.Producto.Nombre)</td>
+                            <td>@Html.DisplayFor(c => item.Cantidad)</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr style="color:red">
+                        <td>Sin detalle asociado</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="form-group">
+        <a asp-action="Index" class="btn btn-warning col-lg-3">Volver</a>
+    </div>
+</div>
